@@ -22,7 +22,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import os
+#import os
 import time
 
 import pygame
@@ -33,7 +33,7 @@ import ui
 
 
 # Application configuration.
-SDR_SAMPLE_SIZE = 1024	# Number of samples to grab from the radio.  Should be
+SDR_SAMPLE_SIZE = 4096	# Number of samples to grab from the radio.  Should be
 						# larger than the maximum display width.
 
 CLICK_DEBOUNCE  = 0.4	# Number of seconds to wait between clicks events. Set
@@ -70,10 +70,10 @@ ui.Button.border_px    = 2
 
 if __name__ == '__main__':
 	# Initialize pygame and SDL to use the PiTFT display and touchscreen.
-	os.putenv('SDL_VIDEODRIVER', 'fbcon')
-	os.putenv('SDL_FBDEV'      , '/dev/fb1')
-	os.putenv('SDL_MOUSEDRV'   , 'TSLIB')
-	os.putenv('SDL_MOUSEDEV'   , '/dev/input/touchscreen')
+	#os.putenv('SDL_VIDEODRIVER', 'fbcon')
+	#os.putenv('SDL_FBDEV'      , '/dev/fb1')
+	#os.putenv('SDL_MOUSEDRV'   , 'TSLIB')
+	#os.putenv('SDL_MOUSEDEV'   , '/dev/input/touchscreen')
 	pygame.display.init()
 	pygame.font.init()
 	pygame.mouse.set_visible(False)
