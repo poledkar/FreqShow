@@ -95,7 +95,7 @@ if __name__ == '__main__':
 	while True:
 		# Process any events (only mouse events for now).
 		for event in pygame.event.get():
-			if event.type is pygame.MOUSEBUTTONDOWN \
+			if event.type == pygame.MOUSEBUTTONDOWN \
 				and (time.time() - lastclick) >= CLICK_DEBOUNCE:
 				lastclick = time.time()
 				fscontroller.current().click(pygame.mouse.get_pos())
