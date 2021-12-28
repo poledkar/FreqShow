@@ -422,6 +422,7 @@ class SpectrogramBase(ViewBase):
 			accept=self.quit_accept)
 
 	def quit_accept(self):
+		pygame.quit()
 		sys.exit(0)
 
 
