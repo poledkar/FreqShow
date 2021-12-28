@@ -10,3 +10,4 @@ https://learn.adafruit.com/freq-show-raspberry-pi-rtl-sdr-scanner/overview
 - Don't hide mouse cursor.
 - Accept input events again (likely broken by changes between `pygame 1` and `pygame 2`).
 - Option to offset frequency by 125 MHz (when used with RF upconverter).
+- Initial frequency changed from 90.3 MHz to 145 MHz.

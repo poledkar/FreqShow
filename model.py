@@ -44,7 +44,7 @@ class FreqShowModel(object):
 		# Initialize RTL-SDR library.
 		self.sdr = RtlSdr()
 		self.offsetted = False
-		self.set_nominal_center_freq(90.3)
+		self.set_nominal_center_freq(145)
 		self.set_sample_rate(2.4)
 		self.set_gain('AUTO')
 
