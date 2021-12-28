@@ -40,6 +40,9 @@ CLICK_DEBOUNCE  = 0.4	# Number of seconds to wait between clicks events. Set
 						# to a few hunded milliseconds to prevent accidental
 						# double clicks from hard screen presses.
 
+MOUSE_HIDE_TIME = 0.8   # Number of seconds before mouse cursor disappears after
+                        # last mouse action (move or button de/press).
+
 # Font size configuration.
 MAIN_FONT = 33
 NUM_FONT  = 50
@@ -69,6 +72,7 @@ ui.Button.border_px    = 2
 
 
 if __name__ == '__main__':
+	mouse_visible = True
 	# Initialize pygame and SDL to use the PiTFT display and touchscreen.
 	#os.putenv('SDL_VIDEODRIVER', 'fbcon')
 	#os.putenv('SDL_FBDEV'      , '/dev/fb1')
@@ -76,7 +80,7 @@ if __name__ == '__main__':
 	#os.putenv('SDL_MOUSEDEV'   , '/dev/input/touchscreen')
 	pygame.display.init()
 	pygame.font.init()
-	pygame.mouse.set_visible(True)
+	pygame.mouse.set_visible(mouse_visible)
 	# Get size of screen and create main rendering surface.
 	size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
 	screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
@@ -92,13 +96,21 @@ if __name__ == '__main__':
 	time.sleep(2.0)
 	# Main loop to process events and render current view.
 	lastclick = 0
+	lastmove = time.time() if mouse_visible else 0
 	while True:
 		# Process any events (only mouse events for now).
 		for event in pygame.event.get():
-			if event.type == pygame.MOUSEBUTTONDOWN \
+			type = event.type
+			if type == pygame.MOUSEBUTTONDOWN \
 				and (time.time() - lastclick) >= CLICK_DEBOUNCE:
-				lastclick = time.time()
+				lastmove = lastclick = time.time()
 				fscontroller.current().click(pygame.mouse.get_pos())
+			elif type == pygame.MOUSEMOTION or type == pygame.MOUSEBUTTONUP or type == pygame.MOUSEBUTTONDOWN:
+				lastmove = time.time()
+		# Hide or show mouse cursor according to the time passed since the last mouse event.
+		if mouse_visible != (time.time() - lastmove < MOUSE_HIDE_TIME): # no `xor` operator in Python :sad-panda:
+			mouse_visible = not mouse_visible
+			pygame.mouse.set_visible(mouse_visible)
 		# Update and render the current view.
 		fscontroller.current().render(screen)
 		pygame.display.update()
