@@ -253,11 +253,12 @@ class SettingsList(ViewBase):
 		self.model      = model
 		self.controller = controller
 		# Create button labels with current model values.
-		centerfreq_text = 'CENTER FREQ: {0:0.2f} MHz'.format(model.get_center_freq())
+		centerfreq_text = 'CENTER FREQ: {0:0.2f} MHz'.format(model.get_nominal_center_freq())
 		samplerate_text = 'SAMPLE RATE: {0:0.2f} MHz'.format(model.get_sample_rate())
 		gain_text       = 'GAIN: {0} dB'.format(model.get_gain())
 		min_text        = 'MIN: {0} dB'.format(model.get_min_string())
 		max_text        = 'MAX: {0} dB'.format(model.get_max_string())
+		offset_text     = 'OFFSET: {0} MHz'.format(model.get_offset_mhz())
 		# Create buttons.
 		self.buttons = ui.ButtonGrid(model.width, model.height, 4, 5)
 		self.buttons.add(0, 0, centerfreq_text, colspan=4, click=self.centerfreq_click)
@@ -266,6 +267,7 @@ class SettingsList(ViewBase):
 		self.buttons.add(0, 3, min_text,        colspan=2, click=self.min_click)
 		self.buttons.add(2, 3, max_text,        colspan=2, click=self.max_click)
 		self.buttons.add(0, 4, 'BACK', click=self.controller.change_to_main)
+		self.buttons.add(2, 4, offset_text,     colspan=2, click=self.offset_click)
 
 	def render(self, screen):
 		# Clear view and render buttons.
@@ -278,11 +280,11 @@ class SettingsList(ViewBase):
 	# Button click handlers follow below.
 	def centerfreq_click(self, button):
 		self.controller.number_dialog('FREQUENCY:', 'MHz',
-			initial='{0:0.2f}'.format(self.model.get_center_freq()),
+			initial='{0:0.2f}'.format(self.model.get_nominal_center_freq()),
 			accept=self.centerfreq_accept)
 
 	def centerfreq_accept(self, value):
-		self.model.set_center_freq(float(value))
+		self.model.set_nominal_center_freq(float(value))
 		self.controller.waterfall.clear_waterfall()
 		self.controller.change_to_settings()
 
@@ -325,6 +327,11 @@ class SettingsList(ViewBase):
 		self.model.set_max_intensity(value)
 		self.controller.waterfall.clear_waterfall()
 		self.controller.change_to_settings()
+
+	def offset_click(self, button):
+		self.model.set_offsetted(not self.model.is_offsetted())
+		self.controller.waterfall.clear_waterfall()
+		self.controller.change_to_settings() # re-render configuration values
 
 
 class SpectrogramBase(ViewBase):
@@ -369,23 +376,22 @@ class SpectrogramBase(ViewBase):
 			# Draw frequencies in bottom row.
 			bottom_row  = (0, self.model.height-self.buttons.row_size,
 				self.model.width, self.buttons.row_size)
-			freq        = self.model.get_center_freq()
+			freq        = self.model.get_nominal_center_freq()
 			bandwidth   = self.model.get_sample_rate()
+			offset      = self.model.get_offset_mhz()
+			def blit_mhz_label(frequency, alignment):
+				if offset > 0:
+					text = '{0:0.2f} + {1} MHz'.format(frequency, offset)
+				else:
+					text = '{0:0.2f} MHz'.format(frequency)
+				label = ui.render_text(text, size=freqshow.MAIN_FONT)
+				screen.blit(label, ui.align(label.get_rect(), bottom_row, horizontal=alignment))
 			# Render minimum frequency on left.
-			label = ui.render_text('{0:0.2f} Mhz'.format(freq-bandwidth/2.0),
-				size=freqshow.MAIN_FONT)
-			screen.blit(label, ui.align(label.get_rect(), bottom_row,
-				horizontal=ui.ALIGN_LEFT))
+			blit_mhz_label(freq-bandwidth/2.0, ui.ALIGN_LEFT)
 			# Render center frequency in center.
-			label = ui.render_text('{0:0.2f} Mhz'.format(freq),
-				size=freqshow.MAIN_FONT)
-			screen.blit(label, ui.align(label.get_rect(), bottom_row,
-				horizontal=ui.ALIGN_CENTER))
+			blit_mhz_label(freq, ui.ALIGN_CENTER)
 			# Render maximum frequency on right.
-			label = ui.render_text('{0:0.2f} Mhz'.format(freq+bandwidth/2.0),
-				size=freqshow.MAIN_FONT)
-			screen.blit(label, ui.align(label.get_rect(), bottom_row,
-				horizontal=ui.ALIGN_RIGHT))
+			blit_mhz_label(freq+bandwidth/2.0, ui.ALIGN_RIGHT)
 			# Render min intensity in bottom left.
 			label = ui.render_text('{0:0.0f} dB'.format(self.model.min_intensity),
 				size=freqshow.MAIN_FONT)

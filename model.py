@@ -43,7 +43,8 @@ class FreqShowModel(object):
 		self.set_max_intensity('AUTO')
 		# Initialize RTL-SDR library.
 		self.sdr = RtlSdr()
-		self.set_center_freq(90.3)
+		self.offsetted = False
+		self.set_nominal_center_freq(90.3)
 		self.set_sample_rate(2.4)
 		self.set_gain('AUTO')
 
@@ -54,14 +55,28 @@ class FreqShowModel(object):
 			self.max_intensity = None
 		self.range = None
 
-	def get_center_freq(self):
-		"""Return center frequency of tuner in megahertz."""
-		return self.sdr.get_center_freq()/1000000.0
+	def is_offsetted(self):
+		"""Return whether actual frequency is offsetted by 125 megahertz or not."""
+		return self.offsetted
 
-	def set_center_freq(self, freq_mhz):
-		"""Set tuner center frequency to provided megahertz value."""
+	def set_offsetted(self, enabled):
+		"""Set whether to offset actual frequency by 125 megahertz or not."""
+		frequency = self.get_nominal_center_freq()
+		self.offsetted = bool(enabled)
+		self.set_nominal_center_freq(frequency)
+
+	def get_offset_mhz(self):
+		"""Return current frequency offset in megahertz."""
+		return 125 if self.is_offsetted() else 0
+
+	def get_nominal_center_freq(self):
+		"""Return nominal center frequency of tuner in megahertz."""
+		return (self.sdr.get_center_freq()) / 1000000.0 - self.get_offset_mhz()
+
+	def set_nominal_center_freq(self, freq_mhz):
+		"""Set tuner nominal center frequency to provided megahertz value."""
 		try:
-			self.sdr.set_center_freq(freq_mhz*1000000.0)
+			self.sdr.set_center_freq((freq_mhz + self.get_offset_mhz()) * 1000000.0)
 			self._clear_intensity()
 		except IOError:
 			# Error setting value, ignore it for now but in the future consider

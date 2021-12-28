@@ -9,3 +9,4 @@ https://learn.adafruit.com/freq-show-raspberry-pi-rtl-sdr-scanner/overview
 - Run with normal HDMI display (or on desktop PC, in Python virtual environment in `env` subdirectory).
 - Don't hide mouse cursor.
 - Accept input events again (likely broken by changes between `pygame 1` and `pygame 2`).
+- Option to offset frequency by 125 MHz (when used with RF upconverter).
