@@ -14,6 +14,7 @@ https://learn.adafruit.com/freq-show-raspberry-pi-rtl-sdr-scanner/overview
 - Terminate `pygame` properly (so that IDLE does not hang when app quits).
 - Shorter bootstrap delay, inspired by [@rgtokett](https://github.com/rgrokett/FreqShow/commit/0d6f4e59d2acaaba66606fba6a0d76d05b08c759).
 - Error reporting and recovery by reinitializing `rtlsdr` library.
+- Checking that specified sample rate is within valid range, to prevent reinitialization delay.
 
 ## Further inspiration to explore
 - https://github.com/edmondhk/FreqShow for peak hold line, offset of intensity, runnable `.py`.

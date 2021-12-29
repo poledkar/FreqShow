@@ -91,8 +91,11 @@ class FreqShowModel(object):
 
 	def set_sample_rate(self, sample_rate_mhz):
 		"""Set tuner sample rate to provided frequency in megahertz."""
+		sample_rate = int(sample_rate_mhz*1000000.0)
+		if not (225_001 <= sample_rate <= 300_000 or 900_001 <= sample_rate <= 3_200_000):
+			return ("Specified sample rate out of range!", "Valid sample rates are 0.226 - 0.3 MHz and 0.901 - 3.2 MHz.")
 		try:
-			self.sdr.set_sample_rate(sample_rate_mhz*1000000.0)
+			self.sdr.set_sample_rate(sample_rate)
 			return None
 		except IOError as error:
 			return self.report_error("set sample rate", error)
