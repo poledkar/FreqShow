@@ -94,7 +94,7 @@ class MessageDialog(ViewBase):
 	and optional cancel button.
 	"""
 
-	def __init__(self, model, text, accept, cancel=None):
+	def __init__(self, model, text, accept, cancel=None, title=None):
 		self.accept = accept
 		self.cancel = cancel
 		self.buttons = ui.ButtonGrid(model.width, model.height, 4, 5)
@@ -107,12 +107,21 @@ class MessageDialog(ViewBase):
 			fg=freqshow.BUTTON_FG, bg=freqshow.MAIN_BG)
 		self.label_rect = ui.align(self.label.get_rect(),
 			(0, 0, model.width, model.height))
+		if title is not None:
+			self.title = ui.render_text(title, size=freqshow.NUM_FONT,
+				fg=freqshow.BUTTON_FG, bg=freqshow.MAIN_BG)
+			self.title_rect = ui.align(self.title.get_rect(),
+				(0, 0, model.width, model.height), vertical=ui.ALIGN_TOP)
+		else:
+			self.title = None
 
 	def render(self, screen):
 		# Draw background, buttons, and text.
 		screen.fill(freqshow.MAIN_BG)
 		self.buttons.render(screen)
 		screen.blit(self.label, self.label_rect)
+		if self.title is not None:
+			screen.blit(self.title, self.title_rect)
 
 	def click(self, location):
 		self.buttons.click(location)
@@ -277,6 +286,12 @@ class SettingsList(ViewBase):
 	def click(self, location):
 		self.buttons.click(location)
 
+	def check(self, error):
+		if error is None:
+			self.controller.change_to_settings()
+		else:
+			self.controller.show_configuration_error(*error)
+
 	# Button click handlers follow below.
 	def centerfreq_click(self, button):
 		self.controller.number_dialog('FREQUENCY:', 'MHz',
@@ -284,9 +299,8 @@ class SettingsList(ViewBase):
 			accept=self.centerfreq_accept)
 
 	def centerfreq_accept(self, value):
-		self.model.set_nominal_center_freq(float(value))
 		self.controller.waterfall.clear_waterfall()
-		self.controller.change_to_settings()
+		self.check(self.model.set_nominal_center_freq(float(value)))
 
 	def sample_click(self, button):
 		self.controller.number_dialog('SAMPLE RATE:', 'MHz',
@@ -294,9 +308,8 @@ class SettingsList(ViewBase):
 			accept=self.sample_accept)
 
 	def sample_accept(self, value):
-		self.model.set_sample_rate(float(value))
 		self.controller.waterfall.clear_waterfall()
-		self.controller.change_to_settings()
+		self.check(self.model.set_sample_rate(float(value)))
 
 	def gain_click(self, button):
 		self.controller.number_dialog('GAIN:', 'dB',
@@ -304,9 +317,8 @@ class SettingsList(ViewBase):
 			has_auto=True)
 
 	def gain_accept(self, value):
-		self.model.set_gain(value)
 		self.controller.waterfall.clear_waterfall()
-		self.controller.change_to_settings()
+		self.check(self.model.set_gain(value))
 
 	def min_click(self, button):
 		self.controller.number_dialog('MIN:', 'dB',
@@ -329,9 +341,8 @@ class SettingsList(ViewBase):
 		self.controller.change_to_settings()
 
 	def offset_click(self, button):
-		self.model.set_offsetted(not self.model.is_offsetted())
 		self.controller.waterfall.clear_waterfall()
-		self.controller.change_to_settings() # re-render configuration values
+		self.check(self.model.set_offsetted(not self.model.is_offsetted()))
 
 
 class SpectrogramBase(ViewBase):

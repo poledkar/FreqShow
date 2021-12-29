@@ -42,6 +42,9 @@ class FreqShowModel(object):
 		self.set_min_intensity('AUTO')
 		self.set_max_intensity('AUTO')
 		# Initialize RTL-SDR library.
+		self._initialize_rtlsdr()
+
+	def _initialize_rtlsdr(self):
 		self.sdr = RtlSdr()
 		self.offsetted = False
 		self.set_nominal_center_freq(145)
@@ -63,7 +66,7 @@ class FreqShowModel(object):
 		"""Set whether to offset actual frequency by 125 megahertz or not."""
 		frequency = self.get_nominal_center_freq()
 		self.offsetted = bool(enabled)
-		self.set_nominal_center_freq(frequency)
+		return self.set_nominal_center_freq(frequency)
 
 	def get_offset_mhz(self):
 		"""Return current frequency offset in megahertz."""
@@ -78,10 +81,9 @@ class FreqShowModel(object):
 		try:
 			self.sdr.set_center_freq((freq_mhz + self.get_offset_mhz()) * 1000000.0)
 			self._clear_intensity()
-		except IOError:
-			# Error setting value, ignore it for now but in the future consider
-			# adding an error message dialog.
-			pass
+			return None
+		except IOError as error:
+			return self.report_error("set center frequency", error)
 
 	def get_sample_rate(self):
 		"""Return sample rate of tuner in megahertz."""
@@ -91,10 +93,9 @@ class FreqShowModel(object):
 		"""Set tuner sample rate to provided frequency in megahertz."""
 		try:
 			self.sdr.set_sample_rate(sample_rate_mhz*1000000.0)
-		except IOError:
-			# Error setting value, ignore it for now but in the future consider
-			# adding an error message dialog.
-			pass
+			return None
+		except IOError as error:
+			return self.report_error("set sample rate", error)
 
 	def get_gain(self):
 		"""Return gain of tuner.  Can be either the string 'AUTO' or a numeric
@@ -113,15 +114,15 @@ class FreqShowModel(object):
 			self.sdr.set_manual_gain_enabled(False)
 			self.auto_gain = True
 			self._clear_intensity()
+			return None
 		else:
+			self.auto_gain = False
+			self._clear_intensity()
 			try:
 				self.sdr.set_gain(float(gain_db))
-				self.auto_gain = False
-				self._clear_intensity()
-			except IOError:
-				# Error setting value, ignore it for now but in the future consider
-				# adding an error message dialog.
-				pass
+				return None
+			except IOError as error:
+				return self.report_error("set gain", error)
 
 	def get_min_string(self):
 		"""Return string with the appropriate minimum intensity value, either
@@ -193,3 +194,10 @@ class FreqShowModel(object):
 		self.range = self.max_intensity - self.min_intensity
 		# Return frequency intensities.
 		return freqs
+
+	def report_error(self, action, error):
+		message = "Can't " + action
+		detail = str(error)
+		print(f'{message}: {detail}')
+		self._initialize_rtlsdr()
+		return (message, detail)

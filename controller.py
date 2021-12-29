@@ -99,3 +99,9 @@ class FreqShowController(object):
 		# Create a new settings list view object because the setting values might
 		# change and need to be rendered with different values.
 		self.change_view(SettingsList(self.model, self))
+
+	def show_configuration_error(self, message, detail):
+		"""Show a message dialog with error message which goes back to settings
+		list view, because erroneous settings were reset to default value.
+		"""
+		self.change_view(MessageDialog(self.model, detail, self.change_to_settings, title=message))
