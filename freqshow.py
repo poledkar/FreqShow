@@ -93,7 +93,7 @@ if __name__ == '__main__':
 	# Create model and controller.
 	fsmodel = model.FreqShowModel(size[0], size[1])
 	fscontroller = controller.FreqShowController(fsmodel)
-	time.sleep(2.0)
+	time.sleep(0.8)
 	# Main loop to process events and render current view.
 	lastclick = 0
 	lastmove = time.time() if mouse_visible else 0

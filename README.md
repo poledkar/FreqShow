@@ -12,6 +12,7 @@ https://learn.adafruit.com/freq-show-raspberry-pi-rtl-sdr-scanner/overview
 - Option to offset frequency by 125 MHz (when used with RF upconverter).
 - Initial frequency changed from 90.3 MHz to 145 MHz.
 - Terminate `pygame` properly (so that IDLE does not hang when app quits).
+- Shorter bootstrap delay, inspired by [@rgtokett](https://github.com/rgrokett/FreqShow/commit/0d6f4e59d2acaaba66606fba6a0d76d05b08c759).
 
 ## Further inspiration to explore
 - https://github.com/edmondhk/FreqShow for peak hold line, offset of intensity, runnable `.py`.
@@ -20,5 +21,5 @@ https://learn.adafruit.com/freq-show-raspberry-pi-rtl-sdr-scanner/overview
 - https://github.com/kieransimkin/FreqShow for "drastic improvement of waterfall perfomance".
 - https://github.com/mtippett/FreqShow for keyboard handling.
 - https://github.com/rgerganov/FreqShow for UI changes, recording.
-- https://github.com/rgrokett/FreqShow for shorter bootstrap delay, smooth curve, grid background.
+- https://github.com/rgrokett/FreqShow for smooth curve, grid background.
 - https://github.com/drewby08/FreqShow for FM demodulation.
